@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奥斯汀社交人格罗盘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #f5f0e8;
+  --bg-card: #fdf8f0;
+  --text: #3d2b1f;
+  --text-light: #7a5c44;
+  --accent: #5c7a4e;
+  --gold: #8b6914;
+  --gold-light: #c8a84b;
+  --border: #c4a87a;
+  --border-light: #e0d0b0;
+  --shadow: rgba(61, 43, 31, 0.12);
+  --option-hover: #f0ead8;
+  --option-selected: #e8f0e4;
+  --option-selected-border: #5c7a4e;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+.ornament {
+  text-align: center;
+  color: var(--gold);
+  font-size: 1.4em;
+  letter-spacing: 0.3em;
+  margin: 1rem 0;
+  user-select: none;
+}
+.divider { border: none; border-top: 1px solid var(--border-light); margin: 1.5rem 0; }
+
+/* ── 页面切换 ── */
+.page { display: none; }
+.page.active { display: flex; }
+
+/* ── 封面页 ── */
+#coverPage {
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+#coverPage::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(139,105,20,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(92,122,78,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cover-inner { max-width: 640px; width: 100%; position: relative; z-index: 1; }
+.cover-badge {
+  display: inline-block;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  color: var(--gold);
+  font-size: 0.95em;
+  letter-spacing: 0.15em;
+  border: 1px solid var(--border);
+  padding: 0.3em 1.2em;
+  margin-bottom: 2rem;
+}
+.cover-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+.cover-subtitle-en {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+}
+.cover-desc {
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  color: var(--text-light);
+  max-width: 480px;
+  margin: 0 auto 2.5rem;
+  font-style: italic;
+}
+.cover-meta { display: flex; justify-content: center; gap: 2rem; margin-bottom: 3rem; flex-wrap: wrap; }
+.cover-meta-item { text-align: center; }
+.cover-meta-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold); display: block; line-height: 1; }
+.cover-meta-label { font-size: 0.85rem; color: var(--text-light); letter-spacing: 0.05em; }
+.btn-start {
+  display: inline-block;
+  background: var(--text);
+  color: var(--bg);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  padding: 0.85em 2.5em;
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s, transform 0.15s;
+  position: relative;
+}
+.btn-start::before { content: ''; position: absolute; inset: -3px; border: 1px solid var(--border); }
+.btn-start:hover { background: var(--gold); transform: translateY(-1px); }
+
+/* ── 测验页 ── */
+#quizPage {
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 3rem;
+}
+.quiz-header { width: 100%; max-width: 700px; margin-bottom: 2rem; }
+.quiz-progress-bar-wrap { background: var(--border-light); height: 3px; border-radius: 2px; overflow: hidden; margin-bottom: 0.6rem; }
+.quiz-progress-bar { height: 100%; background: var(--gold); transition: width 0.5s ease; }
+.quiz-progress-label { font-size: 0.85rem; color: var(--text-light); font-style: italic; text-align: right; }
+.quiz-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 24px var(--shadow);
+  padding: clamp(1.5rem, 5vw, 3rem);
+  width: 100%;
+  max-width: 700px;
+  animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.quiz-dimension-tag {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: var(--gold);
+  border: 1px solid var(--border);
+  padding: 0.15em 0.8em;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+.quiz-question-num { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.3rem; }
+.quiz-question-title { font-family: 'Playfair Display', serif; font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 600; color: var(--text); margin-bottom: 0.5rem; line-height: 1.4; }
+.quiz-question-body { font-size: clamp(0.95rem, 2.5vw, 1.05rem); color: var(--text-light); margin-bottom: 1.8rem; font-style: italic; }
+.quiz-options { display: flex; flex-direction: column; gap: 0.75rem; }
+.quiz-option {
+  border: 1px solid var(--border-light);
+  background: var(--bg);
+  padding: 0.9em 1.2em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-family: 'EB Garamond', serif;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  color: var(--text);
+  line-height: 1.55;
+  position: relative;
+}
+.quiz-option::before {
+  content: attr(data-letter);
+  display: inline-block;
+  width: 1.8em;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  color: var(--gold);
+  font-weight: 600;
+}
+.quiz-option:hover { background: var(--option-hover); border-color: var(--border); }
+.quiz-option.selected { background: var(--option-selected); border-color: var(--option-selected-border); }
+.quiz-option.selected::after { content: '✓'; position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 1.1em; }
+.quiz-option.answered { pointer-events: none; }
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; width: 100%; max-width: 700px; }
+.btn-nav { font-family: 'EB Garamond', serif; font-size: 1rem; color: var(--text-light); background: none; border: 1px solid var(--border-light); padding: 0.5em 1.5em; cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em; }
+.btn-nav:hover { border-color: var(--border); color: var(--text); }
+.btn-nav.btn-next { background: var(--text); color: var(--bg); border-color: var(--text); }
+.btn-nav.btn-next:hover { background: var(--gold); border-color: var(--gold); }
+.btn-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── 结果页 ── */
+#resultPage {
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 4rem;
+  animation: fadeIn 0.6s ease;
+}
+.result-header { text-align: center; max-width: 700px; width: 100%; margin-bottom: 2.5rem; }
+.result-archetype-en { font-family: 'Playfair Display', serif; font-style: italic; font-size: clamp(0.85rem, 2vw, 1rem); color: var(--gold); letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+.result-archetype-zh { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 6vw, 3rem); font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 1rem; }
+.result-mirror-name { font-size: 1rem; color: var(--text-light); font-style: italic; }
+.result-mirror-name span { color: var(--gold); font-family: 'Playfair Display', serif; font-style: normal; }
+.result-compass-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 24px var(--shadow);
+  padding: 2rem;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.result-compass-wrap canvas { max-width: 340px; width: 100%; height: auto; }
+.result-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 24px var(--shadow);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 2rem;
+}
+.result-section-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.6rem; }
+.result-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+.advisor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.2rem; }
+.advisor-card { border: 1px solid var(--border-light); padding: 1.2rem; background: var(--bg); text-align: center; }
+.advisor-role { font-size: 0.75rem; letter-spacing: 0.1em; color: var(--gold); font-style: italic; margin-bottom: 0.4rem; }
+.advisor-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; }
+.advisor-desc { font-size: 0.88rem; color: var(--text-light); line-height: 1.5; }
+.result-analysis { font-size: clamp(0.95rem, 2.5vw, 1.05rem); color: var(--text-light); line-height: 1.8; font-style: italic; }
+.result-analysis p + p { margin-top: 1em; }
+.btn-share { font-family: 'EB Garamond', serif; font-size: 1rem; color: var(--bg); background: var(--text); border: none; padding: 0.75em 2em; cursor: pointer; transition: all 0.2s; letter-spacing: 0.08em; margin-top: 1rem; }
+.btn-share:hover { background: var(--gold); }
+.btn-restart { font-family: 'EB Garamond', serif; font-size: 0.95rem; color: var(--text-light); background: none; border: 1px solid var(--border-light); padding: 0.6em 1.8em; cursor: pointer; transition: all 0.2s; margin-top: 0.8rem; }
+.btn-restart:hover { border-color: var(--border); color: var(--text); }
+.toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text); color: var(--bg); padding: 0.7em 1.8em; font-size: 0.95rem; font-family: 'EB Garamond', serif; opacity: 0; transition: all 0.3s ease; z-index: 1000; pointer-events: none; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.dim-belief { color: #8b6914; border-color: #c8a84b; }
+.dim-emotion { color: #5c7a4e; border-color: #7da86a; }
+.dim-social { color: #6b4c7a; border-color: #9a7aaa; }
+.dim-self { color: #7a4c3a; border-color: #aa7a6a; }
+@media (max-width: 480px) {
+  .cover-meta { gap: 1.2rem; }
+  .quiz-card { padding: 1.2rem; }
+  .advisor-grid { grid-template-columns: 1fr; }
+}
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ 封面页 ══════════════ -->
+<div id="coverPage" class="page active">
+  <div class="cover-inner">
+    <div class="ornament">❧ ✦ ❧</div>
+    <div class="cover-badge">A Literary Personality Compass</div>
+    <h1 class="cover-title">奥斯汀社交人格罗盘</h1>
+    <p class="cover-subtitle-en">The Austen Social Compass</p>
+    <hr class="divider">
+    <p class="cover-desc">
+      在奥斯汀的世界里，性格不是静态标签，<br>
+      而是个体与社会规范之间持续不断的谈判。<br>
+      这个罗盘测量的，是你在人生舞会上惯用的舞步。
+    </p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-num">12</span>
+        <span class="cover-meta-label">道情境题</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-num">4</span>
+        <span class="cover-meta-label">个社交维度</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-num">16</span>
+        <span class="cover-meta-label">种人格原型</span>
+      </div>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">开始测试</button>
+    <div class="ornament" style="margin-top:2.5rem">— Jane Austen —</div>
+  </div>
+</div>
+
+<!-- ══════════════ 测验页 ══════════════ -->
+<div id="quizPage" class="page">
+  <div class="quiz-header">
+    <div class="quiz-progress-bar-wrap">
+      <div class="quiz-progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="quiz-progress-label" id="progressLabel">第 1 题，共 12 题</div>
+  </div>
+  <div class="quiz-card" id="quizCard"></div>
+  <div class="quiz-nav">
+    <button class="btn-nav btn-prev" id="btnPrev" onclick="prevQ()" disabled>← 上一题</button>
+    <button class="btn-nav btn-next" id="btnNext" onclick="nextQ()" disabled>下一题 →</button>
+  </div>
+</div>
+
+<!-- ══════════════ 结果页 ══════════════ -->
+<div id="resultPage" class="page">
+  <div class="ornament" style="margin-bottom:1.5rem">❧ ✦ ❧</div>
+  <div class="result-header">
+    <div class="result-archetype-en" id="archetypeEn">—</div>
+    <div class="result-archetype-zh" id="archetypeZh">—</div>
+    <div class="result-mirror-name" id="mirrorIntro">—</div>
+  </div>
+  <div class="result-compass-wrap">
+    <div class="ornament" style="font-size:1rem;margin-bottom:1rem">你的社交罗盘</div>
+    <canvas id="compassCanvas" width="480" height="480"></canvas>
+  </div>
+  <div class="result-section">
+    <div class="result-section-title">✦ 你的智囊团</div>
+    <div class="advisor-grid" id="advisorGrid"></div>
+  </div>
+  <div class="result-section">
+    <div class="result-section-title">✦ 罗盘解析</div>
+    <div class="result-analysis" id="analysisText"></div>
+  </div>
+  <div style="text-align:center;margin-top:1rem">
+    <button class="btn-share" onclick="shareResult()">复制我的结果</button><br>
+    <button class="btn-restart" onclick="restartQuiz()">重新测试</button>
+  </div>
+  <div class="ornament" style="margin-top:3rem;opacity:0.6">— Jane Austen —</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">已复制到剪贴板 ✓</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  题目数据
+// ══════════════════════════════════════════════════
+const QUESTIONS = [
+  {
+    dimension: "信念基石", dimClass: "dim-belief", title: "舞伴困境",
+    body: "在一次至关重要的舞会上，你心仪的对象迟迟未到。此时，一位你并无好感但地位显赫、能为你的家庭解决实际困难的人，向你发出了第二次邀约。",
+    options: [
+      { letter: "A", text: "礼貌而坚定地拒绝，宁愿独自等待或承受无人邀舞的风险。", scores: { P:2, In:2 } },
+      { letter: "B", text: "接受邀约，并尝试在舞蹈中展现魅力，为家庭争取可能的机会。", scores: { Pr:2, D:2 } },
+      { letter: "C", text: "以需要休息为由暂缓，并让姐妹去打听心仪者的消息，争取时间。", scores: { C:2, O:2 } }
+    ]
+  },
+  {
+    dimension: "信念基石", dimClass: "dim-belief", title: "秘密困境",
+    body: "你意外发现一位朋友的未婚夫有不端行为，但揭露此事会引发丑闻，让你和朋友都陷入社交绝境。",
+    options: [
+      { letter: "A", text: "立即告知朋友全部真相，她有知情权，后果应共同承担。", scores: { P:2, Pa:1 } },
+      { letter: "B", text: "秘密搜集更多证据，然后寻找最稳妥、对朋友伤害最小的方式揭露。", scores: { C:2, O:2 } },
+      { letter: "C", text: "保持沉默，除非有确凿证据和万全之策，不涉足他人的私事。", scores: { Pr:2, C:1 } }
+    ]
+  },
+  {
+    dimension: "信念基石", dimClass: "dim-belief", title: "求婚困境",
+    body: "一份你毫无感情的求婚摆在面前，它能确保你未来衣食无忧、社会地位稳固。而你所爱之人前途未卜。",
+    options: [
+      { letter: "A", text: "拒绝。没有相互理解和爱情的婚姻是无法想象的。", scores: { Pa:2, In:2 } },
+      { letter: "B", text: "请求给予时间考虑，并设法与所爱之人沟通，评估其可能性。", scores: { C:2, O:1 } },
+      { letter: "C", text: "接受。爱情是奢侈的幻觉，保障与尊重才是婚姻的基石。", scores: { Pr:2, D:2 } }
+    ]
+  },
+  {
+    dimension: "情感模式", dimClass: "dim-emotion", title: "书信困境",
+    body: "你暗恋某人，对方寄来一封措辞模糊的信——可能是倾慕，也可能只是出于礼貌。",
+    options: [
+      { letter: "A", text: "立刻回一封热情洋溢的信，表明心迹，让感情明朗。", scores: { Pa:2, In:1 } },
+      { letter: "B", text: "仔细推敲措辞，回一封得体但略含深意的信，静观其变。", scores: { C:2, O:1 } },
+      { letter: "C", text: "先请密友帮忙分析信的语气与用词，再决定如何回复。", scores: { C:1, O:2 } }
+    ]
+  },
+  {
+    dimension: "情感模式", dimClass: "dim-emotion", title: "离别困境",
+    body: "心仪之人即将远行，你们从未正式表白。这是最后一次见面的机会。",
+    options: [
+      { letter: "A", text: "鼓起勇气，直接说出心中的感受，无论结果如何。", scores: { Pa:2, P:1 } },
+      { letter: "B", text: "用眼神与举止暗示，期待他能领会你的心意。", scores: { C:2, O:2 } },
+      { letter: "C", text: "像往常一样，把话咽回去，只是微笑着祝他一路平安。", scores: { C:1, D:2 } }
+    ]
+  },
+  {
+    dimension: "情感模式", dimClass: "dim-emotion", title: "误解困境",
+    body: "你听说心仪之人曾在背后评价你"相貌平平、不值一顾"。后来，他却主动开始向你示好。",
+    options: [
+      { letter: "A", text: "内心虽有隐痛，但被他真诚的热情打动，愿意给彼此一次机会。", scores: { Pa:2, D:1 } },
+      { letter: "B", text: "保持距离，冷静观察他的动机，等待时间证明其真实性。", scores: { C:2, O:2 } },
+      { letter: "C", text: "直接质问他当初的评价，要他给出一个坦诚的解释。", scores: { In:2, P:1 } }
+    ]
+  },
+  {
+    dimension: "社交策略", dimClass: "dim-social", title: "晚宴困境",
+    body: "在一次重要的晚宴上，你发现两位朋友之间存在明显的误会，气氛越来越剑拔弩张。",
+    options: [
+      { letter: "A", text: "找准时机，用一个话题巧妙地引开众人注意力，化解眼前的尴尬。", scores: { I:2, C:1 } },
+      { letter: "B", text: "假装没有察觉，专注于自己的谈话，不介入他人的纷争。", scores: { O:2, Pr:1 } },
+      { letter: "C", text: "晚宴结束后，分别找两人私下谈话，从容地帮助解开误会。", scores: { O:1, P:2 } }
+    ]
+  },
+  {
+    dimension: "社交策略", dimClass: "dim-social", title: "谣言困境",
+    body: "关于你的一则不实谣言正在社交圈流传，若不加以澄清，可能对你的声誉造成实质性损害。",
+    options: [
+      { letter: "A", text: "在公开场合直接反驳，让所有人都知道事情的真相。", scores: { I:2, P:1 } },
+      { letter: "B", text: "追溯谣言的源头，私下与关键人物沟通，将影响降到最低。", scores: { O:2, C:1 } },
+      { letter: "C", text: "保持淡然，相信自己的行为将不攻自破地证明一切。", scores: { In:2, C:1 } }
+    ]
+  },
+  {
+    dimension: "社交策略", dimClass: "dim-social", title: "引荐困境",
+    body: "你有机会将一位新朋友引荐给重要的社交圈，但她的举止略显粗鲁，贸然介绍可能适得其反。",
+    options: [
+      { letter: "A", text: "事先私下指导她，帮她在那个场合中展现出得体的一面。", scores: { I:2, P:1 } },
+      { letter: "B", text: "先观察那个圈子近期的动向与气氛，择机而动。", scores: { O:2, Pr:1 } },
+      { letter: "C", text: "如实告知她目前时机尚未成熟，尊重她自己做决定。", scores: { P:2, O:1 } }
+    ]
+  },
+  {
+    dimension: "自我界定", dimClass: "dim-self", title: "批评困境",
+    body: "一位你素来尊重的长辈，在公开场合批评你的某个决定，认为它不够"体面"，令你颇感难堪。",
+    options: [
+      { letter: "A", text: "礼貌地倾听，但内心清楚自己仍会坚持原来的决定。", scores: { In:2, P:1 } },
+      { letter: "B", text: "认真考虑他的意见，反思自己是否确实有所欠妥。", scores: { D:2, C:1 } },
+      { letter: "C", text: "当场有礼貌地解释你的理由，请求他予以理解。", scores: { In:1, I:2 } }
+    ]
+  },
+  {
+    dimension: "自我界定", dimClass: "dim-self", title: "联姻困境",
+    body: "你的家庭为你安排了一段有利可图的社交联姻，对方条件优越，但你们之间毫无共同语言。",
+    options: [
+      { letter: "A", text: "服从安排。家庭的整体稳定，比个人的情感喜好更重要。", scores: { D:2, Pr:2 } },
+      { letter: "B", text: "寻求折中之道——既不让家人难堪，也为自己保留一线余地。", scores: { Pr:1, C:2 } },
+      { letter: "C", text: "明确表示这段关系不是你想要的，并愿意承担由此带来的一切后果。", scores: { In:2, P:2 } }
+    ]
+  },
+  {
+    dimension: "自我界定", dimClass: "dim-self", title: "孤立困境",
+    body: "你做了一个重要决定，得到了至亲之人的支持，却遭到整个社交圈几乎一致的反对。",
+    options: [
+      { letter: "A", text: "至亲之人的认可对我已足够，社交圈的眼光是次要的。", scores: { In:2, Pa:1 } },
+      { letter: "B", text: "尝试理解社交圈的顾虑，看是否有值得调整之处。", scores: { D:1, C:2 } },
+      { letter: "C", text: "重新审视这个决定——完全的孤立本身，就是一种不可忽视的警示。", scores: { Pr:2, D:1 } }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════════
+//  16种原型
+// ══════════════════════════════════════════════════
+const ARCHETYPES = {
+  "P-C-O-In":  { nameZh:"沉静的守望者",    nameEn:"The Quiet Sentinel",       mirror:{name:"范妮·普莱斯",         desc:"你们都怀有深沉的道德感与内省之力，在沉默中积蓄判断，在关键时刻守护内心的真实。"},     advisor:{name:"埃莉诺·达什伍德", desc:"她的审慎与现实感能帮你学会如何在坚守内心的同时，更有效地与世界周旋。"},  warning:{name:"丽迪雅·班纳特",   desc:"警惕不假思索的冲动——那是你最需要防范的反面。过度压抑也可能让你错失转瞬即逝的机会。"}, analysis:"你是奥斯汀世界里最安静的那盏灯。你的原则如磐石，你的情感如深井，但你更习惯在旁观察，而非走到舞台中央。这份内敛给了你洞察他人的惊人能力，却也可能让你的声音长久地被淹没在喧嚣之中。你的独立来自于对自我的笃定，而非对他人的冷漠——这一点，只有真正懂你的人才能看见。" },
+  "P-C-O-D":   { nameZh:"谦逊的守护者",    nameEn:"The Devoted Keeper",        mirror:{name:"简·班纳特",           desc:"你们都以善意看待这个世界，并选择以温柔而非锋芒来守护自己在乎的人。"},            advisor:{name:"奈特利先生",       desc:"他的直率与果断能提醒你，有时候，爱需要勇气说出来，而不只是默默承担。"},    warning:{name:"克劳福德小姐",     desc:"警惕那些以魅力操控善良的人。你的信任是珍贵的，也正因如此，需要被保护。"},           analysis:"你是那种让舞会变得温柔的人——不是因为你最耀眼，而是因为你真诚。你的原则让你值得信赖，你的审慎让你不轻易伤人，但过于依赖他人的认可，有时会让你的声音在最重要的时刻哑然失声。记住：你的善良不是软弱，但它需要一道边界。" },
+  "P-C-I-In":  { nameZh:"智慧的改革者",    nameEn:"The Principled Reformer",   mirror:{name:"奈特利先生",          desc:"你们都相信道德的力量，且都愿意主动介入，用行动而非言辞来影响身边的世界。"},          advisor:{name:"伊丽莎白·班纳特", desc:"她的机智与幽默能提醒你：有时候，轻盈地触碰比沉重地推动更有效。"},            warning:{name:"柯林斯先生",       desc:"谨防将"原则"变成"教条"——当介入变成控制，改革者便成了专制者。"},                  analysis:"你具备改变局面的能量，也有足够的原则支撑你的行动。你不是旁观者，你是那个在看出问题之后主动走进去的人。但在确保动机纯粹的同时，也要留心：并非所有人都准备好接受你的帮助。有时候，最好的介入，是先问"你需要我吗？"" },
+  "P-C-I-D":   { nameZh:"审慎的协调者",    nameEn:"The Prudent Mediator",      mirror:{name:"埃莉诺·达什伍德",    desc:"你们都以惊人的克制管理着深沉的情感，并将这份克制转化为照料他人的能力。"},          advisor:{name:"奈特利先生",       desc:"他能提醒你：偶尔直说出真相，比永远维持表面的和谐更有价值。"},                    warning:{name:"威洛比",           desc:"警惕那些会利用你的协调能力、却从不真正在乎后果的人。你不是别人失误的缓冲垫。"},   analysis:"你是那个将一切维系在一起的人——家庭里的，友情中的，甚至社交圈里的。这需要巨大的内在力量，但也可能让你在不断照顾他人的过程中，悄悄忘记了自己也需要被照顾。记住：你愿意承担，不代表你必须承担。" },
+  "P-Pa-O-In": { nameZh:"独立的浪漫主义者", nameEn:"The Romantic Idealist",    mirror:{name:"伊丽莎白·班纳特",   desc:"你们都相信真爱必须建立在理解与尊重之上，并勇于对抗世俗的压力与偏见。"},            advisor:{name:"埃莉诺·达什伍德", desc:"当你的情感澎湃时，她审慎而坚韧的智慧能帮助你更稳妥地驾驭现实。"},              warning:{name:"玛丽安娜·达什伍德", desc:"警惕过度澎湃的情感可能遮蔽你的判断力——沉浸在感受中的人，有时最难看清真相。"},  analysis:"你是舞会上那道令人屏息的光。你的原则是你的骄傲，你的激情是你的力量，你的独立是你的王冠——但同一顶王冠，也可能在你最脆弱的时候压得你喘不过气。你在人群中观察，在内心燃烧，最终选择在自己认可的时刻，以自己的方式爱。" },
+  "P-Pa-O-D":  { nameZh:"热忱的观察家",    nameEn:"The Passionate Observer",   mirror:{name:"安妮·埃利奥特",      desc:"你们都深沉地爱，且以惊人的耐心在岁月中守候，同时对周遭的人保持着细腻的感知。"},   advisor:{name:"范妮·普莱斯",     desc:"在你情感最激烈的时刻，她沉静的道德感能给你一根定海的锚。"},                      warning:{name:"威洛比",           desc:"那些善于利用你情感深度的人，是你最需要警惕的——你的热忱不该成为别人的养料。"},   analysis:"你把世界看得比大多数人更清楚，也把情感藏得比大多数人更深。你有原则，你有激情，但你习惯在他人的目光里寻找安全感，这让你的内心有时如此拥挤，却如此孤寂。你最大的勇气，是允许自己被真正看见，而不只是被需要。" },
+  "P-Pa-I-In": { nameZh:"燃烧的理想家",    nameEn:"The Blazing Idealist",      mirror:{name:"玛丽安娜·达什伍德", desc:"你们都以全部的自我去感受，去爱，去反抗那个你们认为虚伪的世界。"},                 advisor:{name:"埃莉诺·达什伍德", desc:"她是你最需要的镜子——不是来浇灭你，而是来帮你把烈火锻造成持久的光。"},            warning:{name:"克劳福德小姐",     desc:"魅力与激情可以相遇，但并不总是诚意相遇。警惕那些把你的燃烧当作表演欣赏的人。"},   analysis:"你活得比大多数人更用力。你爱得深，怒得真，不愿在任何你认为不诚实的事情上假装微笑。这份纯粹是你最珍贵的礼物，也是你最锋利的刃——它保护了你，也可能伤及你自己，甚至你爱的人。奥斯汀从未批判玛丽安娜的激情，只是帮她学会了如何让它开花，而不是燃尽。" },
+  "P-Pa-I-D":  { nameZh:"深情的使者",      nameEn:"The Devoted Advocate",      mirror:{name:"爱玛·伍德豪斯（早期）", desc:"你们都充满热情地爱着周围的人，并乐于主动介入，为他们设想更好的未来。"},       advisor:{name:"奈特利先生",       desc:"他那带着温度的直言，能帮你看见自己善意背后可能造成的无意之伤。"},                  warning:{name:"威洛比",           desc:"你的深情值得被等价对待。那些只索取而不回应你的人，不配占据你的能量。"},           analysis:"你是那种会在朋友最需要的时候出现的人。你的爱是行动，你的原则让你的介入充满善意，但你对他人认可的渴望，有时会让你不自觉地越界。你最好的成长，是学会分辨：哪些是真正的帮助，哪些是用帮助来填补内心的某个空洞。" },
+  "Pr-C-O-In": { nameZh:"冷静的策略家",    nameEn:"The Calm Strategist",       mirror:{name:"达西先生",            desc:"你们都有着不轻易展示的内在，以冷静的外表管理着深沉的情感，并最终以行动而非言语证明自己。"}, advisor:{name:"伊丽莎白·班纳特", desc:"她的坦率与活力能帮你打开那扇你习惯关着的门——不是为了别人，是为了你自己。"},  warning:{name:"柯林斯先生",       desc:"务实是美德，但当它走向极端，便成了对人与人之间情感可能性的彻底否认。"},           analysis:"你不轻易出手，但一出手便有分量。你比大多数人看得更远，也比大多数人更能忍受当下的不适来换取未来的确定。但在这份冷静之下，你真实的情感有时像被封存在玻璃瓶里——清晰可见，却无法触及。允许某些人真正靠近你，不是软弱，是另一种勇气。" },
+  "Pr-C-O-D":  { nameZh:"谨慎的社交家",    nameEn:"The Cautious Networker",    mirror:{name:"爱德华·费拉斯",      desc:"你们都在现实的约束与内心的温柔之间艰难地寻找平衡，习惯在确认安全之后才缓缓走近。"},  advisor:{name:"奈特利先生",       desc:"他对诚实的坚守能提醒你：有时候，直接说出来，比迂回一百次更尊重对方。"},          warning:{name:"丽迪雅·班纳特",   desc:"过于谨慎的你最需要防范的，是用"观察"来无限推迟真正的投入。"},                      analysis:"你很少出错，因为你很少冒险。你的谨慎保护了你，也可能在某些时刻，让你看着机会在手边悄悄溜走。你在意他人的看法，并非出于软弱，而是因为你真正在乎关系的质量。只是别忘了：所有真实的联结，都需要某一刻的纵身一跃。" },
+  "Pr-C-I-In": { nameZh:"务实的领导者",    nameEn:"The Pragmatic Leader",      mirror:{name:"爱玛·伍德豪斯（成熟）", desc:"你们都能看见他人的可能性，并愿意主动介入去推动它——同时，你们也在错误中学会了边界。"}, advisor:{name:"奈特利先生",      desc:"他的诚实是你最好的磨刀石。真正好的领导者，需要身边有人敢说真话。"},               warning:{name:"克劳福德小姐",     desc:"警惕将介入变成操控，将务实变成冷酷。你的能力是礼物，不是权力。"},                   analysis:"你是那个把事情做成的人。你务实、有谋略、愿意出手，而且通常是对的。但这种能力有时会让你不自觉地忽略他人的感受——因为你太清楚"正确答案"是什么。最好的领导者知道：有时候，让人参与过程，比直接给出结果更重要。" },
+  "Pr-C-I-D":  { nameZh:"圆融的外交家",    nameEn:"The Adept Diplomat",        mirror:{name:"夏洛特·卢卡斯",      desc:"你们都具备清醒的现实主义，能在复杂的社交局面中找到最稳妥的落脚点，并将其维持得体面而有序。"}, advisor:{name:"埃莉诺·达什伍德", desc:"她提醒你：审慎与妥协之间，有一条细线——越过它，你就从外交家变成了逃避者。"}, warning:{name:"威洛比",          desc:"你善于周旋，便也容易被善于周旋的人所蒙蔽。圆融是技术，但辨别真伪需要更深的智慧。"}, analysis:"你让一切运转如常。你懂得如何在复杂的关系网络中找到平衡点，让各方都觉得被尊重——这是一种罕见的天赋。但这份圆融有时也是你的防护层：它让你少受伤，也让你少被真正触碰。你最深的恐惧，可能是如果你停止周旋，是否还有人愿意留下来？" },
+  "Pr-Pa-O-In":{ nameZh:"自由的现实主义者", nameEn:"The Free Realist",         mirror:{name:"亨利·克劳福德（未堕落时）", desc:"你有他的魅力与敏锐，但你的自由建立在清醒的自我认知之上，而非虚空的激情。"}, advisor:{name:"埃莉诺·达什伍德", desc:"她能帮你把飞扬的直觉落地，让你的自由有更坚实的根基可以起跳。"},             warning:{name:"丽迪雅·班纳特",  desc:"自由与放肆之间只有一步之遥——那一步，由你的内在道德来守护。"},                     analysis:"你活得轻盈，看得清醒。你不被虚伪的规则所困，也不轻易被情感的洪流淹没，但你也并非无动于衷。你用自己的眼睛看这个世界，并选择以自己喜欢的方式回应它。这份自在是你最动人的地方，也是你最难被理解的地方——因为能同时拥有自由与清醒的人，本就不多。" },
+  "Pr-Pa-O-D": { nameZh:"温柔的附和者",    nameEn:"The Warm Conformist",       mirror:{name:"简·班纳特（务实一面）", desc:"你们都以温柔回应这个世界，同时也都懂得在情感与现实之间维持一种有尊严的平衡。"}, advisor:{name:"安妮·埃利奥特",   desc:"她的坚持提醒你：爱自己的感受，并不是自私——那是做一个真实的人的前提。"},           warning:{name:"克劳福德小姐",     desc:"你的温柔吸引人，也可能吸引那些只想被温柔包围，却不愿真正付出的人。"},             analysis:"你的存在让周围的人感到安心，这是你的礼物，也是你的重担。你的澎湃藏在温柔之下，你的务实包裹着真实的渴望。你比你看上去更复杂，比你展示的更敏感。如果有人足够用心，他们会发现你内心那片最深的水域——而你，也值得等待那个真正懂得潜水的人。" },
+  "Pr-Pa-I-In":{ nameZh:"魅力的冒险家",    nameEn:"The Charismatic Adventurer", mirror:{name:"克劳福德小姐",        desc:"你们都拥有难以抗拒的社交能量，且都选择主动塑造局面，而非被动等待命运。"},           advisor:{name:"埃莉诺·达什伍德", desc:"她的克制与深思是你最需要借鉴的——并非为了削弱你，而是为了让你的能量不白白燃尽。"}, warning:{name:"威洛比",          desc:"最危险的冒险，是在享受追逐的过程中忘记了终点——以及沿途的人。"},                  analysis:"你是那个进了房间就会被注意到的人。你的魅力是真实的，你的激情是真实的，你对生活的贪婪也是真实的——你想要全部，而且你有能力追求全部。但偶尔停下来问问自己：在所有的目标与策略之中，什么是真正让你心跳加速的？那才是你真正的罗盘。" },
+  "Pr-Pa-I-D": { nameZh:"热烈的从众者",    nameEn:"The Passionate Conformist", mirror:{name:"丽迪雅·班纳特",       desc:"你们都充满活力，都渴望被看见与被爱，都以全情投入回应这个世界的邀请。"},              advisor:{name:"埃莉诺·达什伍德", desc:"她的沉静是你最稀缺的资源——不是为了压制你的热烈，而是给它一个落脚的地方。"},      warning:{name:"威洛比",           desc:"热烈与轻率只有一步之遥，而那一步，往往由身边的人的品格来决定。选择你身边的人，像选择罗盘一样慎重。"}, analysis:"你爱生活，生活也因你而更有颜色。你的热情是感染力极强的礼物，你的澎湃让你在任何场合都不会消失在人群中。但你对归属感的渴望，有时让你愿意为了被接受而走得太远。你真正需要的不是更多的认可，而是一个足够安全的地方，让你的热烈也可以安安静静地休息片刻。" }
+};
+
+// ══════════════════════════════════════════════════
+//  评分逻辑
+// ══════════════════════════════════════════════════
+function calculateResult(answers) {
+  const scores = { P:0, Pr:0, C:0, Pa:0, O:0, I:0, In:0, D:0 };
+  answers.forEach((answerIndex, qi) => {
+    const option = QUESTIONS[qi].options[answerIndex];
+    for (const [dim, val] of Object.entries(option.scores)) {
+      scores[dim] = (scores[dim] || 0) + val;
+    }
+  });
+  const d1 = scores.P  >= scores.Pr ? "P"  : "Pr";
+  const d2 = scores.C  >= scores.Pa ? "C"  : "Pa";
+  const d3 = scores.O  >= scores.I  ? "O"  : "I";
+  const d4 = scores.In >= scores.D  ? "In" : "D";
+  const typeCode = `${d1}-${d2}-${d3}-${d4}`;
+  const maxP = 9;
+  const compassData = {
+    belief:  Math.round(((scores.P  - scores.Pr + maxP) / (maxP * 2)) * 100),
+    emotion: Math.round(((scores.C  - scores.Pa + maxP) / (maxP * 2)) * 100),
+    social:  Math.round(((scores.O  - scores.I  + maxP) / (maxP * 2)) * 100),
+    self:    Math.round(((scores.In - scores.D  + maxP) / (maxP * 2)) * 100)
+  };
+  return { typeCode, scores, compassData, archetype: ARCHETYPES[typeCode] || ARCHETYPES["P-Pa-O-In"] };
+}
+
+function generateShareText(archetype) {
+  return `【奥斯汀社交人格罗盘测试结果】\n\n我的原型：${archetype.nameZh} · ${archetype.nameEn}\n\n我的智囊团：\n🪞 镜像：${archetype.mirror.name}\n🧠 参谋：${archetype.advisor.name}\n⚠️ 警示：${archetype.warning.name}\n\n— 来自《奥斯汀社交人格罗盘》—`;
+}
+
+// ══════════════════════════════════════════════════
+//  罗盘绘制
+// ══════════════════════════════════════════════════
+function drawCompass(canvasId, data) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+  const R = Math.min(W,H) * 0.36;
+  ctx.clearRect(0,0,W,H);
+  const axes = [
+    { label:"信念：原则", subLabel:"← 务实", angle:-Math.PI/2, value:data.belief,  color:'#8b6914' },
+    { label:"情感：审慎", subLabel:"← 澎湃", angle:0,           value:data.emotion, color:'#5c7a4e' },
+    { label:"社交：观察", subLabel:"← 介入", angle:Math.PI/2,  value:data.social,  color:'#6b4c7a' },
+    { label:"自我：独立", subLabel:"← 依附", angle:Math.PI,    value:data.self,    color:'#7a4c3a' }
+  ];
+  [0.25,0.5,0.75,1.0].forEach(lv => {
+    ctx.beginPath();
+    axes.forEach((ax,i) => {
+      const x = cx + Math.cos(ax.angle)*R*lv, y = cy + Math.sin(ax.angle)*R*lv;
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = lv===0.5 ? 'rgba(139,105,20,0.25)' : 'rgba(196,168,122,0.18)';
+    ctx.lineWidth = lv===0.5 ? 1.5 : 1;
+    ctx.stroke();
+  });
+  axes.forEach(ax => {
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(ax.angle)*R, cy+Math.sin(ax.angle)*R);
+    ctx.strokeStyle = 'rgba(196,168,122,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+  const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,R);
+  grad.addColorStop(0,'rgba(92,122,78,0.35)');
+  grad.addColorStop(1,'rgba(139,105,20,0.12)');
+  ctx.beginPath();
+  axes.forEach((ax,i) => {
+    const n = ax.value/100;
+    const x = cx+Math.cos(ax.angle)*R*n, y = cy+Math.sin(ax.angle)*R*n;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.strokeStyle = 'rgba(92,122,78,0.8)'; ctx.lineWidth = 2; ctx.stroke();
+  axes.forEach(ax => {
+    const n = ax.value/100;
+    const x = cx+Math.cos(ax.angle)*R*n, y = cy+Math.sin(ax.angle)*R*n;
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle = ax.color; ctx.fill();
+    ctx.strokeStyle = '#fdf8f0'; ctx.lineWidth = 2; ctx.stroke();
+  });
+  const off = 28;
+  axes.forEach(ax => {
+    const x = cx+Math.cos(ax.angle)*(R+off), y = cy+Math.sin(ax.angle)*(R+off);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = 'bold 13px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillStyle = ax.color; ctx.fillText(ax.label, x, y-8);
+    ctx.font = '11px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillStyle = 'rgba(122,92,68,0.7)'; ctx.fillText(ax.subLabel, x, y+8);
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2);
+  ctx.fillStyle = 'rgba(139,105,20,0.5)'; ctx.fill();
+}
+
+// ══════════════════════════════════════════════════
+//  页面控制
+// ══════════════════════════════════════════════════
+let currentQ = 0;
+let answers = [];
+let currentResult = null;
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startQuiz() {
+  currentQ = 0;
+  answers = new Array(QUESTIONS.length).fill(null);
+  showPage('quizPage');
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const q = QUESTIONS[currentQ];
+  const progress = (currentQ / QUESTIONS.length) * 100;
+  document.getElementById('progressBar').style.width = progress + '%';
+  document.getElementById('progressLabel').textContent = `第 ${currentQ+1} 题，共 ${QUESTIONS.length} 题`;
+  const selected = answers[currentQ];
+  const isAnswered = selected !== null;
+  document.getElementById('btnPrev').disabled = currentQ === 0;
+  document.getElementById('btnNext').disabled = !isAnswered;
+  document.getElementById('btnNext').textContent = currentQ===QUESTIONS.length-1 ? '查看结果 →' : '下一题 →';
+  const card = document.getElementById('quizCard');
+  card.innerHTML = `
+    <div class="quiz-dimension-tag ${q.dimClass}">${q.dimension}</div>
+    <div class="quiz-question-num">第 ${currentQ+1} 题</div>
+    <div class="quiz-question-title">${q.title}</div>
+    <div class="quiz-question-body">${q.body}</div>
+    <div class="quiz-options">
+      ${q.options.map((opt,i) => `
+        <button class="quiz-option${selected===i?' selected':''}${isAnswered?' answered':''}"
+          data-letter="${opt.letter}" onclick="selectOption(${i})">${opt.text}</button>
+      `).join('')}
+    </div>`;
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = '';
+}
+
+function selectOption(i) {
+  if (answers[currentQ] !== null) return;
+  answers[currentQ] = i;
+  renderQuiz();
+  setTimeout(nextQ, 600);
+}
+
+function nextQ() {
+  if (answers[currentQ] === null) return;
+  if (currentQ === QUESTIONS.length - 1) { showResult(); return; }
+  currentQ++;
+  renderQuiz();
+}
+
+function prevQ() {
+  if (currentQ > 0) { currentQ--; renderQuiz(); }
+}
+
+function showResult() {
+  currentResult = calculateResult(answers);
+  const a = currentResult.archetype;
+  document.getElementById('archetypeEn').textContent = a.nameEn;
+  document.getElementById('archetypeZh').textContent = a.nameZh;
+  document.getElementById('mirrorIntro').innerHTML = `你的镜像人物：<span>${a.mirror.name}</span>`;
+  document.getElementById('advisorGrid').innerHTML = `
+    <div class="advisor-card"><div class="advisor-role">🪞 你的镜像</div><div class="advisor-name">${a.mirror.name}</div><div class="advisor-desc">${a.mirror.desc}</div></div>
+    <div class="advisor-card"><div class="advisor-role">🧠 你的参谋</div><div class="advisor-name">${a.advisor.name}</div><div class="advisor-desc">${a.advisor.desc}</div></div>
+    <div class="advisor-card"><div class="advisor-role">⚠️ 你的警示</div><div class="advisor-name">${a.warning.name}</div><div class="advisor-desc">${a.warning.desc}</div></div>`;
+  document.getElementById('analysisText').innerHTML = `<p>${a.analysis}</p>`;
+  showPage('resultPage');
+  setTimeout(() => drawCompass('compassCanvas', currentResult.compassData), 100);
+}
+
+function restartQuiz() { startQuiz(); }
+
+function shareResult() {
+  if (!currentResult) return;
+  const text = generateShareText(currentResult.archetype);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(showToast);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast();
+  }
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
