@@ -119,7 +119,7 @@ body {
   transition: background 0.25s, transform 0.15s;
   position: relative;
 }
-.btn-start::before { content: ''; position: absolute; inset: -3px; border: 1px solid var(--border); }
+.btn-start::before { content: ''; position: absolute; inset: -3px; border: 1px solid var(--border); pointer-events: none; }
 .btn-start:hover { background: var(--gold); transform: translateY(-1px); }
 
 /* ── 测验页 ── */
