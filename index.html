@@ -606,7 +606,7 @@ function renderQuiz() {
     <div class="quiz-question-body">${q.body}</div>
     <div class="quiz-options">
       ${q.options.map((opt,i) => `
-        <button class="quiz-option${selected===i?' selected':''}${isAnswered?' answered':''}"
+        <button class="quiz-option${selected===i?' selected':''}"
           data-letter="${opt.letter}" onclick="selectOption(${i})">${opt.text}</button>
       `).join('')}
     </div>`;
@@ -616,10 +616,12 @@ function renderQuiz() {
 }
 
 function selectOption(i) {
-  if (answers[currentQ] !== null) return;
+  const isFirstTime = answers[currentQ] === null;
   answers[currentQ] = i;
   renderQuiz();
-  setTimeout(nextQ, 600);
+  if (isFirstTime) {
+    setTimeout(nextQ, 600);
+  }
 }
 
 function nextQ() {
